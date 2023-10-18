@@ -1,0 +1,206 @@
+﻿@model ML.Cine
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #map {
+        height: 300px;
+    }
+</style>
+
+<script>
+    (g => {
+        var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
+        b = b[c] || (b[c] = {});
+        var d = b.maps || (b.maps = {});
+        var r = new Set, e = new URLSearchParams;
+
+        var u = () => h || (h = new Promise(async (f, n) => {
+            await (a = m.createElement("script"));
+            e.set("libraries", [...r] + "");
+
+            for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+
+            e.set("callback", c + ".maps." + q);
+            a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+            d[q] = f;
+            a.onerror = () => h = n(Error(p + " could not load."));
+            a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+            m.head.append(a);
+        }));
+
+        d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+    })({
+        key: "AIzaSyCSKBDdPPlfca_zTwyxKiicRQn1qfgRjLw",
+    });
+</script>
+
+<div class="text-center">
+    <h2>Registrar Cine</h2>
+</div>
+<hr />
+<div class="container">
+    @using (Html.BeginForm("Form", "CinesController1", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.LabelFor(model => Model.IdCine, new { @class = "visually-hidden" })
+                    @Html.TextBoxFor(model => Model.IdCine, new { @class = "form-control visually-hidden" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.LabelFor(model => Model.Nombre)
+                    @Html.TextBoxFor(model => Model.Nombre, new { @class = "form-control" })
+                </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(model => Model.Direccion)
+                    @Html.TextBoxFor(model => Model.Direccion, new { @class = "form-control", @id = "txtdireccion", @readonly = "readonly" })
+                </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(model => Model.Zona.IdZona)
+                    @Html.TextBoxFor(model => Model.Zona.IdZona, new { @class = "form-control" })
+                </div>
+                <div class="col-md-3">
+                    @Html.LabelFor(model => Model.Ventas)
+                    @Html.TextBoxFor(model => Model.Ventas, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-1">
+                <input type="submit" value="Guardar" class="btn btn-success" />
+            </div>
+            <div class="col-md-1">
+                @Html.ActionLink("Cancelar", "GetAll", "CinesController1", new { @class = "btn btn-danger" })
+            </div>
+        </div>
+
+        <h3>Mapa</h3>
+        <!-- The div element for the map -->
+        <div id="map" class="border-top border-secondary border-3"></div>
+    }
+
+    @section scripts{
+        <script type="text/javascript">
+            let map;
+            let markers = [2];  // Variable para almacenar múltiples marcadores
+
+            async function initMap() {
+                const position = { lat: 19.430570307662446, lng: -99.16166352568936 };
+                const { Map } = await google.maps.importLibrary("maps");
+
+                map = new Map(document.getElementById("map"), {
+                    zoom: 13,
+                    center: position,
+                    mapId: "DEMO_MAP_ID",
+                });
+
+                // Crear un InfoWindow para mostrar información de marcadores
+                let infoWindow = new google.maps.InfoWindow();
+
+                // Supongamos que tienes una lista de objetos llamada listaDeMarcadores
+                const listaDeMarcadores = [
+                    { latitud: 19.431, longitud: -99.160, nombre: "Marcador 1" },
+                  
+                    // Agrega más objetos con latitud y longitud aquí
+                ];
+
+                // Recorrer la lista de marcadores y crear un marcador para cada uno
+                listaDeMarcadores.forEach(marcador => {
+                    const marcadorLatLng = { lat: marcador.latitud, lng: marcador.longitud };
+
+                    const marker = new google.maps.Marker({
+                        position: marcadorLatLng,
+                        map: map,
+                        title: marcador.nombre // Puedes mostrar el nombre u otra propiedad en el título del marcador
+                    });
+
+                    // Agregar un evento click para mostrar información del marcador
+                    marker.addListener("click", () => {
+                        infoWindow.setContent(`<strong>${marcador.nombre}</strong>`);
+                        infoWindow.open(map, marker);
+                    });
+
+                    markers.push(marker); // Agregar el marcador a la lista de marcadores
+                });
+            }
+
+            initMap();
+        </script>
+
+        <script>
+            window.addEventListener("load", function () {
+                var direccion = $("#txtdireccion").val();
+                if (direccion !== "") {
+                    localizar("map", direccion);
+                }
+            });
+
+            function localizar(elemento, direccion) {
+
+                var geocoder = new google.maps.Geocoder();
+                var marker;
+                var map = new google.maps.Map(document.getElementById(elemento), {
+                    zoom: 16,
+                    scrollwheel: true,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                });
+                google.maps.event.addListener(map, 'click', function (event) {
+                    // Eliminar el marcador anterior, si existe
+                    if (marker) {
+                        marker.setMap(null);
+                    }
+
+                    // Colocar un nuevo marcador en la posición clicada
+                    marker = new google.maps.Marker({
+                        position: event.latLng,
+                        map: map,
+                    });
+
+                    var geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({
+                        'latLng': event.latLng
+                    }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            if (results[0]) {
+                                $("#txtdireccion").val(results[0].formatted_address);
+                            }
+                        }
+                    });
+                });
+                geocoder.geocode({ 'address': direccion }, function (results, status) {
+                    if (status === 'OK') {
+                        var resultados = results[0].geometry.location,
+                            resultados_lat = resultados.lat(),
+                            resultados_long = resultados.lng();
+
+                        map.setCenter(results[0].geometry.location);
+                        if (marker) {
+                            marker.setPosition(results[0].geometry.location);
+                        } else {
+                            marker = new google.maps.Marker({
+                                map: map,
+                                position: results[0].geometry.location
+                            });
+                        }
+                    } else {
+                        var mensajeError = "";
+                        if (status === "ZERO_RESULTS") {
+                            mensajeError = "No hubo resultados para la dirección ingresada.";
+                        } else if (status === "OVER_QUERY_LIMIT" || status === "REQUEST_DENIED" || status === "UNKNOWN_ERROR") {
+                            mensajeError = "Error general del mapa.";
+                        } else if (status === "INVALID_REQUEST") {
+                            mensajeError = "Error de la web. Contacte con Name Agency.";
+                        }
+                        alert(mensajeError);
+                    }
+                });
+            }
+        </script>
+    }
+</div>

@@ -1,0 +1,95 @@
+﻿@model ML.Dulceria
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Dulces Populares</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .center {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .article-card {
+            width: 350px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            transition: all 300ms;
+        }
+
+            .article-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+            }
+
+            .article-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .article-card .content {
+                width: 100%;
+                position: absolute;
+                padding: 30px 20px 20px 20px;
+                height: auto;
+                bottom: 0;
+                background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+            }
+
+            .article-card .date,
+            .article-card .title {
+                margin: 0;
+            }
+
+            .article-card .date {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.9);
+                margin-bottom: 4px;
+            }
+
+            .article-card .title {
+                font-size: 17px;
+                color: #fff;
+            }
+    </style>
+</head>
+<body>
+    @if (Model.Dulces != null)
+    {
+        <div class="container">
+            <div class="row">
+                @foreach (ML.Dulceria dulceria in Model.Dulces)
+                {
+                    <div class="col-md-4">
+                        <div class="article-card mb-3">
+                            <div class="content">
+                                <p class="date">@dulceria.Nombre</p>
+                                <p class="title">$@dulceria.Precio.00</p>
+                                <a href="@Url.Action("AddCarrito", "VentaController1", new { IdDulce = dulceria.IdDulce })" class="btn btn-warning"><i class="fa-solid fa-cart-plus fa-beat"></i></a>
+                            </div>
+                            <img src="data:image/*;base64,@dulceria.Imagen" alt="Imagen del Dulce" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</body>
+</html>

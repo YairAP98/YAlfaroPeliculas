@@ -1,0 +1,54 @@
+﻿@model ML.Cine
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="text-center">
+    <h2>Eliminar materia</h2>
+    <p>¿Seguro que quieres eliminar esta alumno?</p>
+</div>
+<hr />
+@if (Model.Cines != null)
+{
+    <table class="table table-responsive table-condensed  table-hover" style="background:#3df188">
+        <thead>
+            <tr class="navbar-inverse" style="color:aliceblue">
+                <th scope="col">Id Cine</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Direccion</th>
+                <th scope="col">Zona</th>
+                <th scope="col">Ventas</th>
+
+            </tr>
+        </thead>
+    </table>
+    <tbody>
+        @foreach (ML.Cine cine in Model.Cines)
+        {
+            <tr>
+                <th class="row">
+                <td>@cine.IdCine</td>
+                <td>@cine.Nombre</td>
+                <td>@cine.Direccion</td>
+                <td>@cine.Zona.Nombre</td>
+                <td>@cine.Ventas</td>
+
+                <td>
+                    <div class="col-md-1">
+                            @Html.ActionLink("Eliminar", "Delete", "CinesController1", new { @class = "btn btn-danger" })
+                    </div>
+                    <div class="col-md-1">
+                            @Html.ActionLink("Cancelar", "GetAll", "CinesController1", new { @class = "btn btn-primary" })
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        No se encontro el id del Alumno a eliminar.Error:@ViewBag.Message
+    </div>
+
+}

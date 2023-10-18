@@ -1,0 +1,85 @@
+﻿@using Microsoft.EntityFrameworkCore.Metadata.Internal;
+@model PL.Models.Pelicula
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Peliculas Populares </title>
+    <style>
+        .card {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            width: 300px;
+            display: inline-block;
+            background-color: #DEDEDE;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border-radius: 20px
+        }
+
+            .card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+                border-radius: 20px
+            }
+
+            .card img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 20px
+            }
+
+            .card h3 {
+                font-size: 18px;
+                margin-top: 10px;
+            }
+
+            .card p {
+                font-size: 14px;
+                color: #777;
+            }
+
+            .card button {
+                background-color: #AD0000;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                border-radius: 20px
+            }
+
+                .card button:hover {
+                    background-color: #FF0000;
+                    border-radius: 20px
+                }
+    </style>
+</head>
+<body>
+    <div class="text-center">
+        <h2>Peliculas Favoritas</h2>
+    </div>
+    <div class="row">
+        @foreach (PL.Models.Pelicula peliculaItem in Model.Peliculas)
+        {
+            <div class="card">
+                <img src="@peliculaItem.Imagen" alt="@peliculaItem.Nombre" />
+                <h3>@peliculaItem.Nombre</h3>
+                <p>@peliculaItem.Descripcion</p>
+                <p>Fecha de Lanzamiento: @peliculaItem.Fecha</p>
+@*                 <a onclick="deleteToFavorites(@peliculaItem.IdMovie)"><i class="fa-regular fa-heart" style="color: #1e3050;"></i>Eliminar de favorito</a>
+            *@     <a class="btn btn-danger  " href="@Url.Action("Favorite","Pelicula",new {IdMovie=peliculaItem.IdMovie, favorite= false} )"><i class="fa-solid fa-trash" style="color: aliceblue;"></i>Eliminar de favoritos</a><br />
+
+            </div>
+        }
+    </div>
+
+</body>
+</html>

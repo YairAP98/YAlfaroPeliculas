@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Peliculas"] = "Peliculas";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Bienvenido a tus películas favoritas</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div class="container">
+    <div class="row">
+        @if (Model.Peliculas != null && Model.Peliculas.Count > 0)
+        {
+            @foreach (var pelicula in Model.Peliculas)
+            {
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="@pelicula.PosterPath" class="card-img-top" alt="@pelicula.Title">
+                        <div class="card-body">
+                            <h5 class="card-title">@pelicula.Title</h5>
+                            <p class="card-text">@pelicula.Overview</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col">
+                <div class="alert alert-danger" role="alert">
+                    No se encontraron películas registradas. Error: @ViewBag.Message
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+
+<script type="text/javascript">
+    let table = new DataTable('#tablaEmpleado', {
+        responsive: true,
+        "lengthMenu": [[5, 10, 15, 20, -1], [5, 10, 15, 20, "Todos"]],
+        searching: false,
+        language: {
+            url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json",
+        },
+    });
+</script>

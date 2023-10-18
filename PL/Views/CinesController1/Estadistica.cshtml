@@ -1,0 +1,249 @@
+﻿@model ML.Cine
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #map {
+        height: 300px;
+    }
+</style>
+
+<script>
+    (g => {
+        var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
+        b = b[c] || (b[c] = {});
+        var d = b.maps || (b.maps = {});
+        var r = new Set, e = new URLSearchParams;
+
+        var u = () => h || (h = new Promise(async (f, n) => {
+            await (a = m.createElement("script"));
+            e.set("libraries", [...r] + "");
+
+            for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+
+            e.set("callback", c + ".maps." + q);
+            a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+            d[q] = f;
+            a.onerror = () => h = n(Error(p + " could not load."));
+            a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+            m.head.append(a);
+        }));
+
+        d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+    })({
+        key: "AIzaSyCSKBDdPPlfca_zTwyxKiicRQn1qfgRjLw",
+    });
+</script>
+
+<div class="text-center">
+    <h2>Estadistica de ventas</h2>
+</div>
+<hr />
+<div class="container">
+    <div class="col-md-5">
+        <h2>Total de Ventas por zona</h2>
+        <canvas id="grafica"></canvas>
+    </div>
+
+
+    <h3>Mapa</h3>
+    <!-- The div element for the map -->
+    <div id="map" class="border-top border-secondary border-3"></div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js
+"></script>
+    @section scripts{
+        <script type="text/javascript">
+            let map;
+            let markers = [2];  // Variable para almacenar múltiples marcadores
+
+            async function initMap() {
+                const position = { lat: 19.430570307662446, lng: -99.16166352568936 };
+                const { Map } = await google.maps.importLibrary("maps");
+
+                map = new Map(document.getElementById("map"), {
+                    zoom: 13,
+                    center: position,
+                    mapId: "DEMO_MAP_ID",
+                });
+
+                // Crear un InfoWindow para mostrar información de marcadores
+                let infoWindow = new google.maps.InfoWindow();
+
+                // Supongamos que tienes una lista de objetos llamada listaDeMarcadores
+                const listaDeMarcadores = [
+                    { latitud: 19.431, longitud: -99.160, nombre: "Marcador 1" },
+                    { latitud: 19.432, longitud: -99.162, nombre: "Marcador 2" },
+                    // Agrega más objetos con latitud y longitud aquí
+                ];
+
+                // Recorrer la lista de marcadores y crear un marcador para cada uno
+                listaDeMarcadores.forEach(marcador => {
+                    const marcadorLatLng = { lat: marcador.latitud, lng: marcador.longitud };
+
+                    const marker = new google.maps.Marker({
+                        position: marcadorLatLng,
+                        map: map,
+                        title: marcador.nombre // Puedes mostrar el nombre u otra propiedad en el título del marcador
+                    });
+
+                    // Agregar un evento click para mostrar información del marcador
+                    marker.addListener("click", () => {
+                        infoWindow.setContent(`<strong>${marcador.nombre}</strong>`);
+                        infoWindow.open(map, marker);
+                    });
+
+                    markers.push(marker); // Agregar el marcador a la lista de marcadores
+                });
+            }
+
+            initMap();
+        </script>
+
+        <script>
+            window.addEventListener("load", function () {
+                var direccion = $("@Model.Direccion").val();
+                if (direccion !== "") {
+                    localizar("map", direccion);
+                }
+            });
+
+            function localizar(elemento, direccion) {
+
+                var geocoder = new google.maps.Geocoder();
+                var marker;
+                var map = new google.maps.Map(document.getElementById(elemento), {
+                    zoom: 16,
+                    scrollwheel: true,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                });
+                google.maps.event.addListener(map, 'click', function (event) {
+                    // Eliminar el marcador anterior, si existe
+                    if (marker) {
+                        marker.setMap(null);
+                    }
+
+                    // Colocar un nuevo marcador en la posición clicada
+                    marker = new google.maps.Marker({
+                        position: event.latLng,
+                        map: map,
+                    });
+
+                    var geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({
+                        'latLng': event.latLng
+                    }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            if (results[0]) {
+                                $("#txtdireccion").val(results[0].formatted_address);
+                            }
+                        }
+                    });
+                });
+                geocoder.geocode({ 'address': direccion }, function (results, status) {
+                    if (status === 'OK') {
+                        var resultados = results[0].geometry.location,
+                            resultados_lat = resultados.lat(),
+                            resultados_long = resultados.lng();
+
+                        map.setCenter(results[0].geometry.location);
+                        if (marker) {
+                            marker.setPosition(results[0].geometry.location);
+                        } else {
+                            marker = new google.maps.Marker({
+                                map: map,
+                                position: results[0].geometry.location
+                            });
+                        }
+                    } else {
+                        var mensajeError = "";
+                        if (status === "ZERO_RESULTS") {
+                            mensajeError = "No hubo resultados para la dirección ingresada.";
+                        } else if (status === "OVER_QUERY_LIMIT" || status === "REQUEST_DENIED" || status === "UNKNOWN_ERROR") {
+                            mensajeError = "Error general del mapa.";
+                        } else if (status === "INVALID_REQUEST") {
+                            mensajeError = "Error de la web. Contacte con Name Agency.";
+                        }
+                        alert(mensajeError);
+                    }
+                });
+            }
+        </script>
+
+
+
+        <script type="text/javascript">
+
+            @if (Model.Cines != null)
+            {
+                decimal norte = 0;
+                decimal sur = 0;
+                decimal este = 0;
+                decimal oeste = 0;
+                decimal suma = norte + sur + este + oeste;
+
+
+            @foreach (ML.Cine cine in Model.Cines)
+            {
+                
+
+                
+                switch (cine.Zona.IdZona)
+                {
+                    case 1:
+                        norte += cine.Ventas;
+                        
+                        break;
+                    case 2:
+                        sur += cine.Ventas;
+                        break;
+                    case 3:
+                        este += cine.Ventas;
+                        break;
+                    case 4:
+                        oeste += cine.Ventas;
+                        break;
+                }
+
+
+                <text>
+                                                  const labels = ['Norte', 'Sur', 'Este', 'Oeste']
+                const colors = ['rgb(69,177,2)', 'rgb(99,201,122)', 'rgb(203,82,82)', 'rgb(229,224,88)'];
+
+                const graph = document.querySelector("#grafica");
+
+                const data = {
+                    labels: labels,
+                    datasets: [{
+                        data: [norte, sur, este, oeste],
+                        backgroundColor: colors
+                    }]
+                }; </text>
+
+
+
+
+
+
+            }
+               decimal resnorte = norte / suma;
+               decimal ressur = sur / suma;
+               decimal reseste = este / suma;
+               decimal resoeste = oeste / suma;
+            }
+         
+
+
+
+                        const config = {
+                type: 'pie',
+                data: data,
+            };
+
+            new Chart(graph, config);
+
+        </script>
+    }
+</div>

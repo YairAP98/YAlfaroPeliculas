@@ -1,0 +1,85 @@
+﻿@using Microsoft.EntityFrameworkCore.Metadata.Internal;
+@model ML.Cine
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Peliculas Populares </title>
+    <style>
+        .card {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            width: 300px;
+            display: inline-block;
+            background-color: #DEDEDE;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border-radius: 20px
+        }
+
+            .card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+                border-radius: 20px
+            }
+
+            .card img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 20px
+            }
+
+            .card h3 {
+                font-size: 18px;
+                margin-top: 10px;
+            }
+
+            .card p {
+                font-size: 14px;
+                color: #777;
+            }
+
+            .card button {
+                background-color: #AD0000;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                border-radius: 20px
+            }
+
+                .card button:hover {
+                    background-color: #FF0000;
+                    border-radius: 20px
+                }
+    </style>
+</head>
+<body>
+    <div class="text-center">
+        <h2>Cines Registrados</h2>
+    </div>
+    <div class="row">
+        @foreach (ML.Cine cine in Model.Cines)
+        {
+            <div class="card">
+                <img alt="@cine.Nombre" />
+                <h3>@cine.Nombre</h3>
+                <p>Direccion: @cine.Direccion</p>
+                <p>Zona: @cine.Zona.Nombre</p>
+
+                @*                 <a href="@Url.Action("Favorite", "Pelicula", new {IdMovie = peliculaItem.IdMovie})" class="btn btn-outline-danger"><i class="fa-solid fa-heart-crack"></i> Agregar a favoritos </a>
+            *@
+            </div>
+        }
+    </div>
+
+</body>
+</html>
